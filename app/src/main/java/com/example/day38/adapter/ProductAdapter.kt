@@ -16,6 +16,10 @@ import com.example.day38.response.Product
 
 class ProductAdapter (private  val onClick:(Product,String) -> Unit):
         ListAdapter<Product,ProductAdapter.ProductViewHolder>(ProductCallback) {
+    interface onPaidListener {
+        fun onProductPriceIncreased(price:Int)
+        fun onProductPriceDecreased(price:Int)
+    }
     class ProductViewHolder(itemview : View, val onClick: (Product, String) -> Unit)
         :RecyclerView.ViewHolder(itemview) {
             val title = itemview.findViewById<TextView>(R.id.title_product)
@@ -27,7 +31,7 @@ class ProductAdapter (private  val onClick:(Product,String) -> Unit):
             val addQtyBtn = itemview.findViewById<ImageButton>(R.id.addQtyProduct)
             val minQtyBtn = itemview.findViewById<ImageButton>(R.id.editQtyProduct)
              var firstqty = 0
-        private var currentProduct:Product ?= null
+         var currentProduct:Product ?= null
 
 
         init {
@@ -40,9 +44,7 @@ class ProductAdapter (private  val onClick:(Product,String) -> Unit):
             addQtyBtn.setOnClickListener {
                 currentProduct?.let {
 
-                   onClick(it,"addqty").apply {
-                       firstqty = firstqty?.plus(1)!!
-                   }
+                   onClick(it,"addqty")
 
                 }
             }
@@ -50,10 +52,7 @@ class ProductAdapter (private  val onClick:(Product,String) -> Unit):
 
             minQtyBtn.setOnClickListener {
                 currentProduct?.let {
-
-                    onClick(it,"editqty").apply {
-                        firstqty = firstqty?.minus(1)!!
-                    }
+                    onClick(it,"editqty")
 
                 }
             }
@@ -75,7 +74,8 @@ class ProductAdapter (private  val onClick:(Product,String) -> Unit):
             qtyProduct.setText( firstqty.toString())
 
 
-            Glide.with(itemView).load("").centerCrop().into(thumbnail)
+            Glide.with(itemView).load(product.thumbnail).
+            centerCrop().into(thumbnail)
 
         }
         }
@@ -88,6 +88,28 @@ class ProductAdapter (private  val onClick:(Product,String) -> Unit):
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val product = getItem((position))
+
+        holder.addQtyBtn.setOnClickListener {
+            holder.firstqty= holder.qtyProduct.text.toString().toInt()?.plus(1)!!
+            holder.qtyProduct.text = holder.firstqty.toString()
+
+            holder.currentProduct?.let {
+                onClick(it,"addqty")
+            }
+        }
+
+
+        holder.minQtyBtn.setOnClickListener {
+            if(holder.qtyProduct.text.toString().toInt() >0) {
+
+            holder.firstqty= holder.qtyProduct.text.toString().toInt()?.minus(1)!!
+            holder.qtyProduct.text = holder.firstqty.toString()
+                holder.currentProduct?.let {
+                    onClick(it,"editqty")
+                }
+        }
+
+        }
 
         holder.bind(product)
     }

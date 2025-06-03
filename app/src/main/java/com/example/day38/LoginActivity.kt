@@ -65,7 +65,7 @@ class LoginActivity : AppCompatActivity() {
                     val user = response.body()
 
                     if(user != null) {
-                        val intent = Intent(this@LoginActivity,MainActivity::class.java)
+                        val intent = Intent(this@LoginActivity,NavActivity::class.java)
 
                         user.accessToken?.let { sessionManager.setToken(it) }
 
@@ -78,6 +78,8 @@ class LoginActivity : AppCompatActivity() {
 
                 override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
                         Toast.makeText(this@LoginActivity,t.localizedMessage, Toast.LENGTH_SHORT).show()
+
+
                 }
 
             })

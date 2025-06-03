@@ -2,12 +2,14 @@ package com.example.day38
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
@@ -23,13 +25,14 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class ProductFragment : Fragment() {
+class ProductFragment : Fragment(),ProductAdapter.onPaidListener {
     private lateinit var recyclerView: RecyclerView
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var searchView: SearchView
     private lateinit var qtyProduct : TextView
     private lateinit var totalBayarTxt : TextView
     private lateinit var productAdapter: ProductAdapter
+    private lateinit var bayarSekarang: Button
     private  var qty:Int?=0;
     private var totalBayar : Int ?= 0
     private lateinit var arrayList: ArrayList<InvoiceClass>
@@ -42,6 +45,7 @@ class ProductFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_product, container, false)
 
+        bayarSekarang = view.findViewById(R.id.bayar_sekarang)
         recyclerView = view.findViewById(R.id.recycler_view)
         swipeRefreshLayout = view.findViewById(R.id.refresh_layout)
         searchView = view.findViewById(R.id.search_view)
@@ -78,7 +82,12 @@ class ProductFragment : Fragment() {
 
         })
 
-        totalBayarTxt.text = "Rp. " + totalBayar.toString()
+        bayarSekarang.setOnClickListener {
+            val intent = Intent(context,InvoiceActivity::class.java)
+            val sph = context?.getSharedPreferences("bayar",Context.MODE_PRIVATE)
+            startActivity((intent))
+        }
+
         products()
 
         return  view
@@ -149,11 +158,10 @@ class ProductFragment : Fragment() {
             ?.let { product.category?.let { it1 -> product.title?.let { it2 -> InvoiceClass(it2, it1, it) } } }?.let { arrayList.add(it) }
 
         val json = gson.toJson(arrayList)
+
         edit?.putString("orders_data",json)?.apply()
 
-        val getOrder = sph?.getString("orders_data" +
-                "",null)
-        println("order" + getOrder)
+
     }
 
 
@@ -161,6 +169,7 @@ class ProductFragment : Fragment() {
     fun productOnclick() {
     }
 
+    @SuppressLint("SetTextI18n")
     fun editQtyProduct(product: Product) {
         val totalHarga = product.price?.toInt()?.times(15000)
 
@@ -171,6 +180,7 @@ class ProductFragment : Fragment() {
         totalBayarTxt.text = "Rp. " + totalBayar.toString()
     }
 
+    @SuppressLint("SetTextI18n")
     fun addQtyProduct(product: Product) {
         val totalHarga = product.price?.toInt()?.times(15000)
 
@@ -179,7 +189,6 @@ class ProductFragment : Fragment() {
         totalBayar = totalHarga?.let { totalBayar ?.plus(it) }
 
         totalBayarTxt.text = "Rp. " + totalBayar.toString()
-       Toast.makeText(context, "tes",Toast.LENGTH_SHORT).show()
     }
 
     fun deleteProduct(product: Product) {
@@ -203,4 +212,14 @@ class ProductFragment : Fragment() {
                 })
         }
     }
+
+    override fun onProductPriceIncreased(price: Int) {
+        val product = Product()
+        addQtyProduct(product)
     }
+
+    override fun onProductPriceDecreased(price: Int) {
+        val product = Product()
+        editQtyProduct(product)
+    }
+}

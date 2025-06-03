@@ -2,4 +2,34 @@
     <string name="app_name">day 38</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_nav">NavActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string-array name="orders">
+        {
+        "date": "2024-05-14",
+        "products": [
+        {
+        "name": "Fanta Orange",
+        "unit_price": 7000,
+        "quantity": 2,
+        "total": 14000
+        },
+        {
+        "name": "Oreo",
+        "unit_price": 2000,
+        "quantity": 1,
+        "total": 2000
+        },
+        {
+        "name": "Coca-cola",
+        "unit_price": 7000,
+        "quantity": 1,
+        "total": 7000
+        }
+        ],
+        "total_payment": 23000
+        }
+    </string-array>
 </resources>
