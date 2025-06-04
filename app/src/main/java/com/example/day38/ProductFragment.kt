@@ -21,9 +21,13 @@ import com.example.day38.api.ApiClient
 import com.example.day38.response.Product
 import com.example.day38.response.ProductResponse
 import com.google.gson.Gson
+import org.json.JSONArray
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class ProductFragment : Fragment(),ProductAdapter.onPaidListener {
     private lateinit var recyclerView: RecyclerView
@@ -83,8 +87,28 @@ class ProductFragment : Fragment(),ProductAdapter.onPaidListener {
         })
 
         bayarSekarang.setOnClickListener {
+            val selectedProducts = productAdapter.getSelectedProduct()
+            val invoiceJson = JSONObject()
+            val jsonArray = JSONArray()
+            var totalPayment = 0
+
+            for (product in selectedProducts) {
+                val item = JSONObject()
+                item.put("name", product.title)
+                item.put("price", product.price)
+                totalPayment = totalBayar!!
+                jsonArray.put(item)
+            }
+
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd",Locale.getDefault())
+            val currentDate=dateFormat.format(java.util.Date())
+
+            invoiceJson.put("date",currentDate)
+            invoiceJson.put("products",jsonArray)
+            invoiceJson.put("total_payment",totalPayment)
+
             val intent = Intent(context,InvoiceActivity::class.java)
-            val sph = context?.getSharedPreferences("bayar",Context.MODE_PRIVATE)
+            intent.putExtra("invoice",invoiceJson.toString())
             startActivity((intent))
         }
 

@@ -7,8 +7,8 @@ data class InvoiceResponse(
 
 data class ProductInvoice(
     val id : Int ?=null,
-    val name : String ?=null,
-    val unit_price : Int ?=null,
-    val quantity : Int ?=null,
+    val title : String ?=null,
+    val price : Float ?=null,
+    val qty : Int ?=null,
     val total : Int ?=null,
 )

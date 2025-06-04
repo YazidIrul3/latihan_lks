@@ -16,6 +16,9 @@ import com.example.day38.response.Product
 
 class ProductAdapter (private  val onClick:(Product,String) -> Unit):
         ListAdapter<Product,ProductAdapter.ProductViewHolder>(ProductCallback) {
+    var currentProduct:Product ?= null
+            private val quantities = mutableMapOf<Int,Int>()
+
     interface onPaidListener {
         fun onProductPriceIncreased(price:Int)
         fun onProductPriceDecreased(price:Int)
@@ -31,53 +34,16 @@ class ProductAdapter (private  val onClick:(Product,String) -> Unit):
             val addQtyBtn = itemview.findViewById<ImageButton>(R.id.addQtyProduct)
             val minQtyBtn = itemview.findViewById<ImageButton>(R.id.editQtyProduct)
              var firstqty = 0
-         var currentProduct:Product ?= null
+        val itemview = itemview
+
 
 
         init {
-            itemview.setOnClickListener {
-                currentProduct?.let {
-                    onClick(it,"detail")
-                }
-            }
 
-            addQtyBtn.setOnClickListener {
-                currentProduct?.let {
-
-                   onClick(it,"addqty")
-
-                }
-            }
-
-
-            minQtyBtn.setOnClickListener {
-                currentProduct?.let {
-                    onClick(it,"editqty")
-
-                }
-            }
-
-            cartBtn.setOnClickListener {
-                currentProduct?.let {
-                    onClick(it,"cartBtn")
-                }
-            }
 
         }
 
-        fun bind(product: Product) {
-            currentProduct = product
 
-            title.text = product.title
-            price.text = product.price.toString()
-            rating.text = product.rating.toString()
-            qtyProduct.setText( firstqty.toString())
-
-
-            Glide.with(itemView).load(product.thumbnail).
-            centerCrop().into(thumbnail)
-
-        }
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
@@ -88,12 +54,24 @@ class ProductAdapter (private  val onClick:(Product,String) -> Unit):
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val product = getItem((position))
+            currentProduct = product
+
+            holder.title.text = product.title
+        holder.price.text = product.price.toString()
+        holder.rating.text = product.rating.toString()
+        holder.qtyProduct.setText( holder.firstqty.toString())
+
+
+            Glide.with(holder.itemView).load(product.thumbnail).
+            centerCrop().into(holder.thumbnail)
+
 
         holder.addQtyBtn.setOnClickListener {
             holder.firstqty= holder.qtyProduct.text.toString().toInt()?.plus(1)!!
             holder.qtyProduct.text = holder.firstqty.toString()
+            quantities[position] = holder.firstqty
 
-            holder.currentProduct?.let {
+            currentProduct?.let {
                 onClick(it,"addqty")
             }
         }
@@ -104,14 +82,28 @@ class ProductAdapter (private  val onClick:(Product,String) -> Unit):
 
             holder.firstqty= holder.qtyProduct.text.toString().toInt()?.minus(1)!!
             holder.qtyProduct.text = holder.firstqty.toString()
-                holder.currentProduct?.let {
+                quantities[position] = holder.firstqty
+                currentProduct?.let {
                     onClick(it,"editqty")
                 }
         }
 
         }
 
-        holder.bind(product)
+       holder.itemview.setOnClickListener {
+            currentProduct?.let {
+                onClick(it,"detail")
+            }
+        }
+
+        holder.cartBtn.setOnClickListener {
+            currentProduct?.let {
+                onClick(it,"cartBtn")
+            }
+        }
+
+
+
     }
 
     object ProductCallback : DiffUtil.ItemCallback<Product> (){
@@ -123,5 +115,25 @@ class ProductAdapter (private  val onClick:(Product,String) -> Unit):
             return oldItem.id == newItem.id
         }
 
+    }
+
+    fun getSelectedProduct() : List<Product> {
+        val selected = mutableListOf<Product>()
+
+        for ((position,qty) in quantities) {
+            if(qty > 0) {
+                val product = currentProduct
+
+                if(product != null) {
+                    selected.add(
+                        Product(
+                            title = product.title.orEmpty(),
+                            price = product.price
+                        )
+                    )
+                }
+            }
+        }
+        return selected
     }
 }

@@ -16,7 +16,6 @@ class InvoiceAdapter (private val onClick:(ProductInvoice,String) -> Unit) :
     class   InvoiceViewHolder(itemview : View, val onClick: (ProductInvoice, String) -> Unit)
         :RecyclerView.ViewHolder(itemview){
 
-            val title_invoice = itemview.findViewById<TextView>(R.id.title_invoice)
 
         var currentInvoice : ProductInvoice ?=null
 
@@ -31,7 +30,6 @@ class InvoiceAdapter (private val onClick:(ProductInvoice,String) -> Unit) :
         fun bind(productInvoice: ProductInvoice) {
             currentInvoice = productInvoice
 
-            title_invoice.text = productInvoice.name
         }
         }
 
